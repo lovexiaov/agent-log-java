@@ -41,12 +41,17 @@ public final class JdbcInstrumentation {
                 new ConnectionHandler(conn));
     }
 
-    /** Emit a db_query auto-event directly (for drivers / custom code paths). */
+    /** Emit a db_query auto-event directly (for drivers / custom code paths).
+     *
+     * <p>Payload vocabulary is shared across SDKs: {@code statement} holds the SQL
+     * text, alongside {@code operation}, {@code duration_ms}, {@code success},
+     * {@code rows_affected} and {@code error}.
+     */
     public static void recordDbQuery(String operation, String sql, long durationMs,
                                      boolean success, long rowsAffected, Throwable error) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("operation", operation);
-        payload.put("query", sql);
+        payload.put("statement", sql);
         payload.put("duration_ms", durationMs);
         payload.put("success", success);
         payload.put("rows_affected", rowsAffected);

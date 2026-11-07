@@ -21,7 +21,7 @@ public class SchemaTests {
 
     private static final Set<String> ALLOWED = new HashSet<>(Arrays.asList(
             "ts", "level", "service", "event_type", "session_id", "agent_auto", "message",
-            "subsystem", "category", "env", "user_id", "trace_id", "payload"));
+            "subsystem", "category", "env", "user_id", "trace_id", "span_id", "payload"));
 
     private static final Set<String> REQUIRED = new HashSet<>(Arrays.asList(
             "ts", "level", "service", "event_type", "session_id", "agent_auto", "message"));
@@ -54,7 +54,7 @@ public class SchemaTests {
                 "auto", null, Map.of("host", "api.example.com", "status", 200));
         // auto db_query (always logged) — covers the new event type in C7
         log.recordAuto(CoreTypes.EventType.DB_QUERY.raw(), "SELECT 1",
-                "auto", null, Map.of("query", "SELECT 1", "rows_affected", 1L));
+                "auto", null, Map.of("statement", "SELECT 1", "rows_affected", 1L));
         // child logger bound context
         Logger child = log.child(Map.of("userId", "u1"));
         child.info("child info");

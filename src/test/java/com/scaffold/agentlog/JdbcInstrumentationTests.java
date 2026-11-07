@@ -113,7 +113,7 @@ public class JdbcInstrumentationTests {
                 assertEquals(true, o.get("agent_auto"));
                 Map<?, ?> p = (Map<?, ?>) o.get("payload");
                 assertEquals("execute", p.get("operation"));
-                assertEquals("SELECT * FROM t", p.get("query"));
+                assertEquals("SELECT * FROM t", p.get("statement"));
                 assertEquals(true, p.get("success"));
             }
         }
