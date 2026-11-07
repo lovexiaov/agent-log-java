@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
@@ -25,3 +25,10 @@ jobs:
       - name: Checkstyle
         run: mvn -q -B checkstyle:check
         continue-on-error: true
+
+      - name: Run example
+        run: |
+          mvn -q -B compile
+          mkdir -p target/example
+          javac -cp target/classes -d target/example example/Example.java
+          java -cp target/classes:target/example example.Example
