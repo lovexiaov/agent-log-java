@@ -182,8 +182,11 @@ public final class LogEvent {
         if (userId != null && !userId.isEmpty()) {
             m.put("user_id", userId);
         }
-        if (traceId != null && !traceId.isEmpty()) {
-            m.put("trace_id", traceId);
+        // Schema v1.2: an invalid trace id is dropped, never written (the event
+        // itself is kept); uppercase hex is normalized to lowercase.
+        String normalizedTraceId = CoreTypes.TraceId.normalize(traceId);
+        if (normalizedTraceId != null) {
+            m.put("trace_id", normalizedTraceId);
         }
         // Schema v1.1: an invalid span id is dropped, never written.
         String normalizedSpanId = CoreTypes.SpanId.normalize(spanId);

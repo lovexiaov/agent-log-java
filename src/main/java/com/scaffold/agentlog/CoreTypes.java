@@ -81,11 +81,54 @@ public final class CoreTypes {
     }
 
     /**
+     * Schema v1.2 trace-id helpers: 32 lowercase hex chars, the same shape as the
+     * W3C {@code traceparent} trace-id and the OTLP traceId.
+     */
+    public static final class TraceId {
+
+        private TraceId() {
+        }
+
+        /**
+         * Generate a fresh Schema-valid trace id (UUID without hyphens).
+         */
+        public static String newTraceId() {
+            return UUID.randomUUID().toString().replace("-", "");
+        }
+
+        /**
+         * Normalize a candidate trace id.
+         *
+         * @return the lowercase 32-hex id, or {@code null} when the input is not a
+         *         valid trace id (callers drop invalid values instead of writing
+         *         them — the event is kept, only the field is dropped).
+         */
+        public static String normalize(String raw) {
+            if (raw == null) {
+                return null;
+            }
+            String value = raw.trim();
+            if (value.length() != 32) {
+                return null;
+            }
+            for (int i = 0; i < value.length(); i++) {
+                char c = value.charAt(i);
+                boolean hex = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+                if (!hex) {
+                    return null;
+                }
+            }
+            return value.toLowerCase(java.util.Locale.ROOT);
+        }
+    }
+
+    /**
      * Per-process stable session id. Generated once; identical across all loggers
-     * in the same JVM process.
+     * in the same JVM process. Generated ids are 32 lowercase hex chars, so the
+     * natural binding {@code trace_id = session_id} is always Schema v1.2-valid.
      */
     public static final class Session {
-        private static final String ID = UUID.randomUUID().toString();
+        private static final String ID = UUID.randomUUID().toString().replace("-", "");
 
         private Session() {
         }

@@ -172,18 +172,16 @@ public class OtlpMapperTests {
     // ---------------------------------------------------------------------- ids
 
     @Test
-    public void traceIdPassthroughAndHashDerivation() {
+    public void traceIdPassthroughAndDropOfNonHex() {
         Map<String, Object> m = event("log", "info", "hi");
         m.put("trace_id", TRACE.toUpperCase(java.util.Locale.ROOT));
         assertEquals(TRACE, OtlpMapper.traceIdHex(m));
 
-        m.put("trace_id", "opaque-trace");
-        String derived = OtlpMapper.traceIdHex(m);
-        assertNotNull(derived);
-        assertEquals(32, derived.length());
-        assertTrue(derived.matches("^[0-9a-f]{32}$"));
-        // Deterministic: same input, same id (retries must be idempotent).
-        assertEquals(derived, OtlpMapper.traceIdHex(m));
+        // Schema v1.2: non-hex values are rejected — no hashing, no id invention.
+        for (Object bad : new Object[] {"opaque-trace", "0123456789abcdef0123456789abcde", 42}) {
+            m.put("trace_id", bad);
+            assertNull(OtlpMapper.traceIdHex(m), String.valueOf(bad));
+        }
 
         m.remove("trace_id");
         assertNull(OtlpMapper.traceIdHex(m));

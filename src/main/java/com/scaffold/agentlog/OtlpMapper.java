@@ -100,7 +100,6 @@ public final class OtlpMapper {
     private static final Pattern TS_RE = Pattern.compile(
             "^(\\d{4})-(\\d{2})-(\\d{2})[T ](\\d{2}):(\\d{2}):(\\d{2})"
                     + "(?:\\.(\\d+))?(Z|[+-]\\d{2}:?\\d{2})?$");
-    private static final Pattern HEX32_RE = Pattern.compile("^[0-9a-fA-F]{32}$");
     private static final Pattern URL_HOST_RE = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/?#]+)");
 
     private OtlpMapper() {
@@ -272,19 +271,13 @@ public final class OtlpMapper {
     /**
      * Return the 32-hex-char OTLP {@code traceId} for an event, or {@code null}.
      *
-     * <p>Schema v1 only requires {@code trace_id} to be opaque and
-     * traceparent-aligned; a 32-hex value is used verbatim, anything else is hashed
-     * deterministically so all events sharing one logical id stay in one trace.
+     * <p>Schema v1.2 constrains {@code trace_id} to 32 lowercase hex chars
+     * (uppercase is normalized). Non-conforming values yield {@code null} — no
+     * hashing: since v1.2 the write boundary drops them, so reaching this mapper
+     * they can only come from hand-built maps; those are treated as trace-less.
      */
     public static String traceIdHex(Map<String, Object> event) {
-        String raw = str(event.get("trace_id"));
-        if (raw.isEmpty()) {
-            return null;
-        }
-        if (HEX32_RE.matcher(raw).matches()) {
-            return raw.toLowerCase(java.util.Locale.ROOT);
-        }
-        return sha256Hex("agentlog:trace:" + raw).substring(0, 32);
+        return CoreTypes.TraceId.normalize(str(event.get("trace_id")));
     }
 
     /**

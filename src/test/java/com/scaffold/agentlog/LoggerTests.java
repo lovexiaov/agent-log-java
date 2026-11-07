@@ -65,14 +65,14 @@ public class LoggerTests {
         Logger parent = makeLogger(Level.INFO);
         Logger child = parent.child(Map.of("userId", "u1", "env", "prod"));
 
-        child.warn("scoped warn", "auth", "trace_x", Map.of("orderId", "o9"));
+        child.warn("scoped warn", "auth", "0123456789abcdef0123456789abcdef", Map.of("orderId", "o9"));
         MemorySink sink = (MemorySink) child.getSink();
         Map<String, Object> o = Json.parseObject(sink.lines().get(0));
 
         assertEquals("u1", o.get("user_id"));
         assertEquals("prod", o.get("env"));
         assertEquals("auth", o.get("category"));
-        assertEquals("trace_x", o.get("trace_id"));
+        assertEquals("0123456789abcdef0123456789abcdef", o.get("trace_id"));
         assertTrue(o.get("payload") instanceof Map);
         assertEquals("o9", ((Map<?, ?>) o.get("payload")).get("orderId"));
         assertEquals(false, o.get("agent_auto"));
