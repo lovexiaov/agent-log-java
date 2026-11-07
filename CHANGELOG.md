@@ -21,5 +21,24 @@
   `child(Map.of("span_id", …))` — `child` accepts both camelCase and snake_case for the
   reserved scope keys, while the wire format stays snake_case. Malformed values are
   dropped instead of written, so a bad value can never produce a schema-violating line.
+- OTLP/JSON adapter (`OtlpMapper`), zero third-party deps (`java.base` only): one
+  `LogRecord` per event, plus a `SPAN_KIND_CLIENT` span for `network_request` / `db_query`
+  (HTTP and database semantic conventions). Severity 6→6 mapping (`critical` → `FATAL`=21),
+  `payload.*` flattened one level, int64 (nanos / counts) emitted as strings.
+  Entry points: `toOtlp`, `toOtlpLogs`, `toOtlpSpans`, `eventToLogRecord`, `eventToSpan`,
+  `toOtlpJson`, and the `OtlpSink` `LogSink`.
+- Deterministic OTLP ids (retry-safe, no randomness): 32-hex `trace_id` passes through
+  lowercased, anything else is `sha256("agentlog:trace:"+raw)[:32]`; a span without a trace
+  falls back to `sha256("agentlog:session:"+session_id)[:32]`; a missing `span_id` is derived
+  from `session_id|trace_id|event_type|ts|message`, while a schema-valid event `span_id` is
+  passed through as-is. `LogRecord` only carries `spanId` when a trace id exists, so no
+  orphan spans are produced.
+- OTLP batch layout grouped by `(service, env, session_id)` preserving insertion order, with
+  scope `{name:"agentlog.otlp", version:"1.0.0"}`; conflicting `extraResource` keys are
+  dropped so agent-log's own resource attributes always win.
+- `OtlpMapperTests` (27 cases): severity table, `warning` alias, AnyValue typing, timestamp
+  parsing (`Z` / `+08:00` / `+0800` / space separator / sub-nanosecond truncation), id
+  derivation, LogRecord shape, HTTP + DB spans, resource grouping, `extraResource` conflicts,
+  and compact (no-whitespace) JSON serialization.
 - C7 `SchemaTests` conformance suite, plus `LoggerTests`, `RedactorTests`, `ConfigTests`,
   `SpanIdTests`, `JdbcInstrumentationTests`.
