@@ -52,6 +52,9 @@ public class SchemaTests {
         // auto network_request (always logged)
         log.recordAuto(CoreTypes.EventType.NETWORK_REQUEST.raw(), "GET /x -> 200",
                 "auto", null, Map.of("host", "api.example.com", "status", 200));
+        // auto db_query (always logged) — covers the new event type in C7
+        log.recordAuto(CoreTypes.EventType.DB_QUERY.raw(), "SELECT 1",
+                "auto", null, Map.of("query", "SELECT 1", "rows_affected", 1L));
         // child logger bound context
         Logger child = log.child(Map.of("userId", "u1"));
         child.info("child info");
@@ -66,8 +69,8 @@ public class SchemaTests {
         }
 
         // ---- minLevel=info skipped a debug manual event (count) ----
-        // 5 lines: info, warn, network(auto), child info, sensitive info
-        assertEquals(5, sink.size(), "debug must be dropped at minLevel=info");
+        // 6 lines: info, warn, network(auto), db_query(auto), child info, sensitive info
+        assertEquals(6, sink.size(), "debug must be dropped at minLevel=info");
 
         // ---- auto event appears at minLevel=info ----
         boolean autoPresent = lines.stream().anyMatch(l -> {
@@ -121,7 +124,7 @@ public class SchemaTests {
         // ---- debug appears when minLevel=trace ----
         log.setLevel(Level.TRACE);
         log.debug("now visible");
-        assertEquals(6, sink.size(), "debug must appear at minLevel=trace");
+        assertEquals(7, sink.size(), "debug must appear at minLevel=trace");
         String last = sink.lines().get(sink.size() - 1);
         Map<String, Object> lastObj = Json.parseObject(last);
         assertEquals("debug", lastObj.get("level"));

@@ -18,6 +18,7 @@ public final class CoreTypes {
         NETWORK_REQUEST("network_request"),
         CRASH("crash"),
         HANG("hang"),
+        DB_QUERY("db_query"),
         LOG("log");
 
         private final String raw;

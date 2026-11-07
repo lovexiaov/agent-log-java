@@ -1,6 +1,7 @@
 package example;
 
 import com.scaffold.agentlog.AgentLog;
+import com.scaffold.agentlog.JdbcInstrumentation;
 import com.scaffold.agentlog.Level;
 import com.scaffold.agentlog.LoggingConfig;
 
@@ -79,6 +80,11 @@ public final class Example {
             throw new RuntimeException("演示崩溃：验证 crash 自动埋点");
         }, "demo-crash").start();
         Thread.sleep(200); // 等子线程把 crash 事件刷盘
+
+        // 7) DB 自动埋点（event_type = db_query）：生产环境用 JdbcInstrumentation.wrap(dataSource)
+        //    包裹数据源即可让每条 SQL 自动记录；此处直接演示 recordDbQuery 事件（无需真实数据库）。
+        JdbcInstrumentation.recordDbQuery(
+                "exec", "INSERT INTO orders(user_id) VALUES ('u-1234')", 3, true, 1, null);
 
         // 6) 展示落盘结果
         Path jsonl = Path.of(AgentLog.exportPath());
