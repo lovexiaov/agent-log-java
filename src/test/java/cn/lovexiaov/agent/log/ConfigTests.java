@@ -1,4 +1,4 @@
-package com.scaffold.agentlog;
+package cn.lovexiaov.agent.log;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -61,6 +61,6 @@ public class ConfigTests {
         Logger log = Logger.create(cfg, sink);
         log.info("hi");
         assertEquals("override-svc",
-                com.scaffold.agentlog.Json.parseObject(sink.lines().get(0)).get("service"));
+                cn.lovexiaov.agent.log.Json.parseObject(sink.lines().get(0)).get("service"));
     }
 }

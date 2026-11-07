@@ -1,4 +1,4 @@
-package com.scaffold.agentlog;
+package cn.lovexiaov.agent.log;
 
 /**
  * Output destination for serialized JSONL lines.

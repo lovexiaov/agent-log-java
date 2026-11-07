@@ -5,7 +5,7 @@ Language-neutral **AgentLog** logging framework for Java — conforming to
 [language-neutral logging contract](../docs/INTERFACE.md).
 
 - **Zero third-party dependencies.** JSON serialization + parsing is hand-rolled
-  (`com.scaffold.agentlog.Json`). Only JUnit is used (test scope).
+  (`cn.lovexiaov.agent.log.Json`). Only JUnit is used (test scope).
 - **Wire format** = Schema v1 JSONL (RFC3339 `ts`, lowercase levels, snake_case).
 - **Auto-instrumentation** path (`agent_auto=true`) always logged.
 - **Redaction** at the logger boundary — default sensitive keys can never be removed.
@@ -13,7 +13,7 @@ Language-neutral **AgentLog** logging framework for Java — conforming to
 ## Quickstart
 
 ```java
-import com.scaffold.agentlog.*;
+import cn.lovexiaov.agent.log.*;
 
 // 1. Bootstrap (FileSink → <tmp>/agent-log/agent-log.jsonl)
 AgentLog.bootstrap(LoggingConfig.fromJson("{\"service\":\"my-app\",\"env\":\"dev\"}"));

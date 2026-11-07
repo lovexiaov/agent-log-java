@@ -1,9 +1,9 @@
 package example;
 
-import com.scaffold.agentlog.AgentLog;
-import com.scaffold.agentlog.JdbcInstrumentation;
-import com.scaffold.agentlog.Level;
-import com.scaffold.agentlog.LoggingConfig;
+import cn.lovexiaov.agent.log.AgentLog;
+import cn.lovexiaov.agent.log.JdbcInstrumentation;
+import cn.lovexiaov.agent.log.Level;
+import cn.lovexiaov.agent.log.LoggingConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;

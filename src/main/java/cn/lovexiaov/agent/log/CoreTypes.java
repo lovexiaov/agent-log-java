@@ -1,4 +1,4 @@
-package com.scaffold.agentlog;
+package cn.lovexiaov.agent.log;
 
 import java.util.UUID;
 

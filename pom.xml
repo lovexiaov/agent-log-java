@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.scaffold</groupId>
+    <groupId>cn.lovexiaov.agent.log</groupId>
     <artifactId>agent-log</artifactId>
-    <version>1.0.0</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>agent-log</name>
@@ -20,7 +20,7 @@
 
     <!--
       ZERO runtime/compile dependencies.
-      JSON serialization + parsing is hand-rolled (see com.scaffold.agentlog.Json).
+      JSON serialization + parsing is hand-rolled (see cn.lovexiaov.agent.log.Json).
       Only JUnit Jupiter is pulled in (test scope).
     -->
     <dependencies>

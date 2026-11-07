@@ -1,4 +1,4 @@
-package com.scaffold.agentlog;
+package cn.lovexiaov.agent.log;
 
 /**
  * Log levels. Weights follow the language-neutral contract:
