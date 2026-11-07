@@ -62,6 +62,14 @@ public final class Example {
         AgentLog.child(scope("userId", "u-1234", "subsystem", "auth"))
                 .info("用户完成登录", "auth", null, of("method", "oauth"));
 
+        // 2b) Schema v1.1：绑定 trace_id + span_id，同一操作内所有事件共享一个 span。
+        //     导出到 OTLP 时，日志行与链路节点用同一组 id，Agent 可精确对齐；
+        //     大写会被归一化为小写，非法值直接丢弃（绝不写出违规行）。
+        AgentLog.child(scope(
+                "trace_id", "0123456789abcdef0123456789abcdef",
+                "span_id", "A1B2C3D4E5F60718"))
+                .info("订单开票", "billing", null, of("invoice_id", "INV-9"));
+
         // 3) 脱敏：默认敏感键（password/token/secret…）不可关闭；此处追加 sessionToken
         AgentLog.redact(List.of("sessionToken"));
         AgentLog.info("登录载荷", "auth", null, of(

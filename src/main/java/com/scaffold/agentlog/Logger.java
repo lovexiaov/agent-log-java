@@ -17,7 +17,7 @@ public final class Logger {
 
     private final String service;
     private final String sessionId;
-    private final Map<String, String> context; // scope: env, subsystem, userId, traceId
+    private final Map<String, String> context; // scope: env, subsystem, userId, traceId, spanId
     private final Redactor redactor;
     private final LogSink sink;
     private final boolean redactEnabled;
@@ -163,6 +163,10 @@ public final class Logger {
         if (effectiveTraceId != null && !effectiveTraceId.isEmpty()) {
             e.setTraceId(effectiveTraceId);
         }
+        String effectiveSpanId = context.get("spanId");
+        if (effectiveSpanId != null && !effectiveSpanId.isEmpty()) {
+            e.setSpanId(effectiveSpanId);
+        }
         String env = context.get("env");
         if (env != null && !env.isEmpty()) {
             e.setEnv(env);
@@ -195,19 +199,54 @@ public final class Logger {
      * The parent is NOT mutated.
      *
      * @param context reserved scope keys (camelCase): userId, sessionId,
-     *                traceId, subsystem, env, category. Every other key is ignored
-     *                here (it belongs in payload at log time).
+     *                traceId, spanId, subsystem, env, category. Every other key is
+     *                ignored here (it belongs in payload at log time).
      */
     public Logger child(Map<String, Object> context) {
         Map<String, String> merged = new LinkedHashMap<>(this.context);
         if (context != null) {
-            putIfString(merged, "userId", context.get("userId"));
-            putIfString(merged, "sessionId", context.get("sessionId"));
-            putIfString(merged, "traceId", context.get("traceId"));
+            // Reserved scope keys accept both spellings: camelCase is what Java
+            // code naturally writes, snake_case is what the wire format and the
+            // sibling SDKs (Go/Python) use. The wire is always snake_case.
+            putEither(merged, "userId", context, "userId", "user_id");
+            putEither(merged, "sessionId", context, "sessionId", "session_id");
+            putEither(merged, "traceId", context, "traceId", "trace_id");
+            putEither(merged, "spanId", context, "spanId", "span_id");
             putIfString(merged, "subsystem", context.get("subsystem"));
             putIfString(merged, "env", context.get("env"));
         }
         return new Logger(service, sessionId, merged, minLevel, redactor, sink, redactEnabled);
+    }
+
+    /**
+     * Convenience: bind a trace id and span id to a child logger, so every event
+     * of the operation carries the same {@code trace_id}/{@code span_id}
+     * (Schema v1.1). An invalid span id is dropped at serialization time.
+     */
+    public Logger withSpan(String traceId, String spanId) {
+        Map<String, Object> ctx = new LinkedHashMap<>();
+        ctx.put("traceId", traceId);
+        ctx.put("spanId", spanId);
+        return child(ctx);
+    }
+
+    /** Store the first non-empty string among the two accepted spellings. */
+    private static void putEither(Map<String, String> m, String key, Map<String, Object> ctx,
+                                  String camelKey, String snakeKey) {
+        String value = asNonEmptyString(ctx.get(camelKey));
+        if (value == null) {
+            value = asNonEmptyString(ctx.get(snakeKey));
+        }
+        if (value != null) {
+            m.put(key, value);
+        }
+    }
+
+    private static String asNonEmptyString(Object value) {
+        if (value instanceof String && !((String) value).isEmpty()) {
+            return (String) value;
+        }
+        return null;
     }
 
     private static void putIfString(Map<String, String> m, String key, Object value) {

@@ -46,6 +46,41 @@ public final class CoreTypes {
     }
 
     /**
+     * Schema v1.1 span-id helpers: 16 lowercase hex chars, the same shape as the
+     * W3C {@code traceparent} span-id.
+     */
+    public static final class SpanId {
+
+        private SpanId() {
+        }
+
+        /**
+         * Normalize a candidate span id.
+         *
+         * @return the lowercase 16-hex id, or {@code null} when the input is not a
+         *         valid span id (callers drop invalid values instead of writing them,
+         *         so a bad value can never produce a schema-violating line).
+         */
+        public static String normalize(String raw) {
+            if (raw == null) {
+                return null;
+            }
+            String value = raw.trim();
+            if (value.length() != 16) {
+                return null;
+            }
+            for (int i = 0; i < value.length(); i++) {
+                char c = value.charAt(i);
+                boolean hex = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+                if (!hex) {
+                    return null;
+                }
+            }
+            return value.toLowerCase(java.util.Locale.ROOT);
+        }
+    }
+
+    /**
      * Per-process stable session id. Generated once; identical across all loggers
      * in the same JVM process.
      */

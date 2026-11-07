@@ -15,4 +15,11 @@
 - Sinks: `FileSink` (append JSONL) and `MemorySink` (tests).
 - `LoggingConfig.fromJson` (hand-rolled) with defaults.
 - `AgentLog` facade singleton + `installCrashHandler` auto-instrumentation demo.
-- C7 `SchemaTests` conformance suite, plus `LoggerTests`, `RedactorTests`, `ConfigTests`.
+- JDBC auto-instrumentation (`db_query`) via `JdbcInstrumentation`.
+- Schema v1.1: optional top-level `span_id` (16 lowercase hex chars, same shape as the
+  W3C `traceparent` span-id). Bind it via `Logger.withSpan(traceId, spanId)` or
+  `child(Map.of("span_id", …))` — `child` accepts both camelCase and snake_case for the
+  reserved scope keys, while the wire format stays snake_case. Malformed values are
+  dropped instead of written, so a bad value can never produce a schema-violating line.
+- C7 `SchemaTests` conformance suite, plus `LoggerTests`, `RedactorTests`, `ConfigTests`,
+  `SpanIdTests`, `JdbcInstrumentationTests`.

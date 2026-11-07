@@ -9,7 +9,8 @@ import java.util.Map;
  *
  * <p>Required top-level keys: ts, level, service, event_type, session_id,
  * agent_auto, message. Optional: subsystem, category, env, user_id, trace_id,
- * payload. No other top-level keys are allowed ({@code additionalProperties:false}).
+ * span_id, payload. No other top-level keys are allowed
+ * ({@code additionalProperties:false}).
  */
 public final class LogEvent {
 
@@ -26,6 +27,7 @@ public final class LogEvent {
     private String env;
     private String userId;
     private String traceId;
+    private String spanId;
     private Map<String, Object> payload;
 
     public String getTs() {
@@ -136,6 +138,15 @@ public final class LogEvent {
         return this;
     }
 
+    public String getSpanId() {
+        return spanId;
+    }
+
+    public LogEvent setSpanId(String spanId) {
+        this.spanId = spanId;
+        return this;
+    }
+
     public Map<String, Object> getPayload() {
         return payload;
     }
@@ -173,6 +184,11 @@ public final class LogEvent {
         }
         if (traceId != null && !traceId.isEmpty()) {
             m.put("trace_id", traceId);
+        }
+        // Schema v1.1: an invalid span id is dropped, never written.
+        String normalizedSpanId = CoreTypes.SpanId.normalize(spanId);
+        if (normalizedSpanId != null) {
+            m.put("span_id", normalizedSpanId);
         }
         if (payload != null && !payload.isEmpty()) {
             m.put("payload", payload);
