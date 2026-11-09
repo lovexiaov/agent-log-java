@@ -342,16 +342,16 @@ public class OtlpMapperTests {
     }
 
     @Test
-    public void dbSpanAcceptsLegacySqlAndQueryKeysOnRead() {
+    public void dbSpanIgnoresLegacySqlAndQueryKeys() {
         Map<String, Object> legacySql = new LinkedHashMap<>();
         legacySql.put("operation", "exec");
         legacySql.put("sql", "INSERT 1");
-        assertEquals("exec INSERT 1", OtlpMapper.eventToSpan(eventWithPayload("db_query", legacySql)).get("name"));
+        assertEquals("exec ", OtlpMapper.eventToSpan(eventWithPayload("db_query", legacySql)).get("name"));
 
         Map<String, Object> legacyQuery = new LinkedHashMap<>();
         legacyQuery.put("operation", "exec");
         legacyQuery.put("query", "INSERT 2");
-        assertEquals("exec INSERT 2", OtlpMapper.eventToSpan(eventWithPayload("db_query", legacyQuery)).get("name"));
+        assertEquals("exec ", OtlpMapper.eventToSpan(eventWithPayload("db_query", legacyQuery)).get("name"));
     }
 
     @Test
