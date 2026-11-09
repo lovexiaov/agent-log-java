@@ -15,6 +15,11 @@
 
 - `newTraceId()`：生成 Schema 合法的 trace id（uuid4 去横线）。
 
+### Docs
+
+- README 新增 `JdbcInstrumentation`（包装 `DataSource`/`Connection` → `db_query`）与
+  `installCrashHandler()` 自动埋点说明。
+
 ## [1.0.0] - 2026-11-07
 
 ### Added

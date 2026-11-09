@@ -60,6 +60,21 @@ String path = AgentLog.exportPath();
 `trace | debug | info | warn | error | critical` (6, lowercase).
 `"warning"` is a read-only alias normalized to `"warn"`; it is never written.
 
+### Auto-instrumentation
+
+Two opt-in helpers emit `agent_auto=true` events:
+
+- `AgentLog.installCrashHandler()` — installs a JVM-wide default uncaught-exception
+  handler that records a `crash` auto-event.
+- `JdbcInstrumentation` — wraps a `DataSource` (or `Connection`) so statement
+  execution is recorded as a `db_query` auto-event:
+
+  ```java
+  DataSource wrapped = JdbcInstrumentation.wrap(dataSource); // use wrapped in place of the original
+  ```
+
+  This keeps call sites unchanged while auto-recording SQL operations.
+
 ### Config (`LoggingConfig.fromJson`)
 | Key | Default |
 | --- | --- |
