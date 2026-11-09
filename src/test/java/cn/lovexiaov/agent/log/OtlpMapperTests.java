@@ -113,9 +113,9 @@ public class OtlpMapperTests {
     }
 
     @Test
-    public void warningAliasAndUnknownLevelDegradeToInfo() {
-        assertEquals("WARN", OtlpMapper.levelToSeverity("warning").text);
-        assertEquals(13, OtlpMapper.levelToSeverity("warning").number);
+    public void warningIsNotCanonicalAndUnknownLevelDegradeToInfo() {
+        assertEquals("INFO", OtlpMapper.levelToSeverity("warning").text);
+        assertEquals(9, OtlpMapper.levelToSeverity("warning").number);
         assertEquals("INFO", OtlpMapper.levelToSeverity("nonsense").text);
         assertEquals(9, OtlpMapper.levelToSeverity(null).number);
     }

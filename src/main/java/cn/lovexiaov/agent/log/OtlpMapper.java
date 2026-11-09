@@ -90,10 +90,9 @@ public final class OtlpMapper {
     private static final String[] URL_KEYS = {"url", "url_full", "url.full"};
     private static final String[] STATUS_KEYS = {"status_code", "status", "statusCode", "http.status_code"};
     private static final String[] DURATION_KEYS = {"duration_ms", "durationMs", "duration"};
-    // The canonical SQL key is `statement` (unified across the six SDKs in Schema
-    // v1.1). `sql` / `query` are accepted on READ only, so events already written
-    // by older Go/Java builds still map correctly.
-    private static final String[] SQL_KEYS = {"statement", "sql", "query"};
+    // The canonical SQL key is `statement` (unified across the six SDKs).
+    // No legacy aliases: `sql` / `query` are not read.
+    private static final String[] SQL_KEYS = {"statement"};
     private static final String[] DB_SYSTEM_KEYS = {"db_system", "db.system", "system"};
     private static final String[] DB_OPERATION_KEYS = {"operation", "op"};
 
@@ -322,8 +321,8 @@ public final class OtlpMapper {
     /**
      * Map an agent-log level to {@code severityText}/{@code severityNumber}.
      *
-     * <p>The read-side alias {@code warning} is normalized to {@code warn}; an
-     * unknown level degrades to INFO rather than failing the whole export.
+     * <p>An unknown level (including the non-canonical {@code warning}) degrades
+     * to INFO rather than failing the whole export.
      */
     public static Severity levelToSeverity(String level) {
         Level canonical = Level.fromWire(level);

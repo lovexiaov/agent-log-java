@@ -4,8 +4,7 @@ package cn.lovexiaov.agent.log;
  * Log levels. Weights follow the language-neutral contract:
  * TRACE=0, DEBUG=1, INFO=2, WARN=3, ERROR=4, CRITICAL=5.
  *
- * <p>Wire values are lowercase strings. {@code "warning"} is a read-only
- * alias that normalizes to {@code "warn"}; it must NEVER be written to the wire.
+ * <p>Wire values are exactly these lowercase strings; there are no aliases.
  */
 public enum Level {
     TRACE("trace", 0),
@@ -34,8 +33,8 @@ public enum Level {
     }
 
     /**
-     * Parse a level from a human/code name (e.g. "INFO", "warn", "warning").
-     * "warning" -> WARN. Unknown names default to INFO.
+     * Parse a level from a human/code name (e.g. "INFO", "warn").
+     * Unknown names (including "warning") default to INFO.
      */
     public static Level fromName(String name) {
         if (name == null) {
@@ -50,7 +49,6 @@ public enum Level {
             case "info":
                 return INFO;
             case "warn":
-            case "warning":
                 return WARN;
             case "error":
                 return ERROR;
@@ -64,7 +62,7 @@ public enum Level {
 
     /**
      * Parse a level from a wire string (what was read from JSONL).
-     * Only the canonical 6 values (incl. "warning" alias) are accepted.
+     * Only the canonical 6 values are accepted; no aliases.
      */
     public static Level fromWire(String name) {
         return fromName(name);

@@ -48,10 +48,10 @@ public class ConfigTests {
     }
 
     @Test
-    public void levelWarningNormalizedToWarn() {
+    public void levelWarningIsNotCanonical() {
         LoggingConfig cfg = LoggingConfig.fromJson("{\"level\":\"warning\"}");
-        assertEquals(Level.WARN, cfg.getLevel());
-        assertEquals("warn", cfg.getLevel().wire());
+        assertEquals(Level.INFO, cfg.getLevel());
+        assertEquals("info", cfg.getLevel().wire());
     }
 
     @Test
