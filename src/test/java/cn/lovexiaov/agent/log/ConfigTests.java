@@ -2,6 +2,7 @@ package cn.lovexiaov.agent.log;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -52,6 +53,13 @@ public class ConfigTests {
         LoggingConfig cfg = LoggingConfig.fromJson("{\"level\":\"warning\"}");
         assertEquals(Level.INFO, cfg.getLevel());
         assertEquals("info", cfg.getLevel().wire());
+    }
+
+    @Test
+    public void releaseIsOptional() {
+        assertNull(LoggingConfig.fromJson("{}").getRelease());
+        assertEquals("1.4.2", LoggingConfig.fromJson("{\"release\":\"1.4.2\"}").getRelease());
+        assertNull(LoggingConfig.fromJson("{\"release\":\"\"}").getRelease());
     }
 
     @Test

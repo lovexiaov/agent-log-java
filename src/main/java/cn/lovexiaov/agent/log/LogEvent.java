@@ -25,6 +25,7 @@ public final class LogEvent {
     private String subsystem;
     private String category;
     private String env;
+    private String release;
     private String userId;
     private String traceId;
     private String spanId;
@@ -120,6 +121,15 @@ public final class LogEvent {
         return this;
     }
 
+    public String getRelease() {
+        return release;
+    }
+
+    public LogEvent setRelease(String release) {
+        this.release = release;
+        return this;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -178,6 +188,11 @@ public final class LogEvent {
         }
         if (env != null && !env.isEmpty()) {
             m.put("env", env);
+        }
+        // Schema v1.3: optional release; a too-long value is dropped rather
+        // than written as schema-invalid data.
+        if (release != null && !release.isEmpty() && release.length() <= 128) {
+            m.put("release", release);
         }
         if (userId != null && !userId.isEmpty()) {
             m.put("user_id", userId);

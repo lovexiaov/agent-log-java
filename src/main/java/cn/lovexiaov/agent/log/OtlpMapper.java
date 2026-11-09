@@ -64,6 +64,7 @@ public final class OtlpMapper {
 
     // OTel semantic-convention keys (stable ones first).
     private static final String SEMCONV_SERVICE_NAME = "service.name";
+    private static final String SEMCONV_SERVICE_VERSION = "service.version";
     private static final String SEMCONV_DEPLOYMENT_ENV = "deployment.environment";
     private static final String SEMCONV_SESSION_ID = "session.id";
     private static final String SEMCONV_ENDUSER_ID = "enduser.id";
@@ -359,6 +360,11 @@ public final class OtlpMapper {
         String env = str(event.get("env"));
         if (!env.isEmpty()) {
             attrs.add(toKeyValue(SEMCONV_DEPLOYMENT_ENV, env));
+        }
+        String release = str(event.get("release"));
+        if (!release.isEmpty()) {
+            // Schema v1.3: release -> OTel service.version.
+            attrs.add(toKeyValue(SEMCONV_SERVICE_VERSION, release));
         }
         String sessionId = str(event.get("session_id"));
         if (!sessionId.isEmpty()) {

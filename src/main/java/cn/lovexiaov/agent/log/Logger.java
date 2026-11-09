@@ -50,6 +50,9 @@ public final class Logger {
         if (config.getEnv() != null) {
             ctx.put("env", config.getEnv());
         }
+        if (config.getRelease() != null) {
+            ctx.put("release", config.getRelease());
+        }
         return new Logger(
                 config.getService(),
                 CoreTypes.Session.id(),
@@ -170,6 +173,10 @@ public final class Logger {
         String env = context.get("env");
         if (env != null && !env.isEmpty()) {
             e.setEnv(env);
+        }
+        String release = context.get("release");
+        if (release != null && !release.isEmpty()) {
+            e.setRelease(release);
         }
         String subsystem = context.get("subsystem");
         if (subsystem != null && !subsystem.isEmpty()) {

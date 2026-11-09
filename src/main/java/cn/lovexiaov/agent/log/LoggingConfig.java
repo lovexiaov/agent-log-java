@@ -28,6 +28,7 @@ public final class LoggingConfig {
     private List<String> redactPaths = java.util.Collections.emptyList();
     private String exportDirectory = defaultExportDirectory();
     private String env;
+    private String release;
 
     public static String defaultExportDirectory() {
         return System.getProperty("java.io.tmpdir") + java.io.File.separator + DEFAULT_EXPORT_SUBDIR;
@@ -71,6 +72,10 @@ public final class LoggingConfig {
         Object ev = root.get("env");
         if (ev instanceof String) {
             cfg.env = (String) ev;
+        }
+        Object rel = root.get("release");
+        if (rel instanceof String && !((String) rel).isEmpty()) {
+            cfg.release = (String) rel;
         }
         return cfg;
     }
@@ -126,6 +131,15 @@ public final class LoggingConfig {
 
     public LoggingConfig setEnv(String env) {
         this.env = env;
+        return this;
+    }
+
+    public String getRelease() {
+        return release;
+    }
+
+    public LoggingConfig setRelease(String release) {
+        this.release = release;
         return this;
     }
 }

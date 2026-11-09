@@ -80,6 +80,7 @@ Two opt-in helpers emit `agent_auto=true` events:
 | --- | --- |
 | `service` | `"app"` |
 | `env` | none |
+| `release` | none — Schema v1.3 发布标识（semver / git sha / build number），≤128 字符，由 `Logger` 盖章到每条事件；OTLP 侧映射为 `service.version` |
 | `level` | `"info"` |
 | `redactEnabled` | `true` |
 | `redactPaths` | `[]` (append only) |

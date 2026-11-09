@@ -439,6 +439,27 @@ public class OtlpMapperTests {
     }
 
     @Test
+    public void releaseMapsToServiceVersion() {
+        Map<String, Object> e = event("log", "info", "x");
+        e.put("release", "1.4.2");
+        Map<String, Object> body = OtlpMapper.toOtlpLogs(List.of(e), null);
+        List<Object> attrs = list(map(map(list(body.get("resourceLogs")).get(0)).get("resource")).get("attributes"));
+        assertEquals("1.4.2", map(attr(attrs, "service.version")).get("stringValue"));
+    }
+
+    @Test
+    public void builtinServiceVersionWinsOverExtra() {
+        Map<String, Object> e = event("log", "info", "x");
+        e.put("release", "1.4.2");
+        Map<String, Object> extra = new LinkedHashMap<>();
+        extra.put("service.version", "9.9.9");
+        Map<String, Object> body = OtlpMapper.toOtlpLogs(List.of(e), extra);
+        List<Object> attrs = list(map(map(list(body.get("resourceLogs")).get(0)).get("resource")).get("attributes"));
+        assertEquals("1.4.2", map(attr(attrs, "service.version")).get("stringValue"));
+        assertEquals(1, attrKeys(attrs).stream().filter("service.version"::equals).count());
+    }
+
+    @Test
     public void tracesBodySkipsGroupsWithoutOperationEvents() {
         Map<String, Object> plain = event("log", "info", "x");
         Map<String, Object> op = eventWithPayload("network_request", Map.of("method", "GET", "url", "http://a/b"));

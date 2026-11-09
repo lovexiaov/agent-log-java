@@ -178,11 +178,12 @@ public final class CoreTypes {
                 payload.put("thread", thread.getName());
                 payload.put("exception", throwable.getClass().getName());
                 payload.put("stack", stack.toString());
-                sink.record(EventType.CRASH.raw(),
-                        throwable.getMessage() == null
-                                ? throwable.getClass().getName()
-                                : throwable.getMessage(),
-                        "auto", null, payload);
+                String excMessage = throwable.getMessage() == null
+                        ? throwable.getClass().getName()
+                        : throwable.getMessage();
+                payload.put("exception_message", excMessage);
+                payload.put("mechanism", "uncaught");
+                sink.record(EventType.CRASH.raw(), excMessage, "auto", null, payload);
             });
         }
     }

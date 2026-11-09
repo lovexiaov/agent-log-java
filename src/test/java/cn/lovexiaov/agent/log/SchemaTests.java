@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +23,7 @@ public class SchemaTests {
 
     private static final Set<String> ALLOWED = new HashSet<>(Arrays.asList(
             "ts", "level", "service", "event_type", "session_id", "agent_auto", "message",
-            "subsystem", "category", "env", "user_id", "trace_id", "span_id", "payload"));
+            "subsystem", "category", "env", "release", "user_id", "trace_id", "span_id", "payload"));
 
     private static final Set<String> REQUIRED = new HashSet<>(Arrays.asList(
             "ts", "level", "service", "event_type", "session_id", "agent_auto", "message"));
@@ -128,6 +130,79 @@ public class SchemaTests {
         String last = sink.lines().get(sink.size() - 1);
         Map<String, Object> lastObj = Json.parseObject(last);
         assertEquals("debug", lastObj.get("level"));
+    }
+
+    @Test
+    public void releaseIsStampedOnManualAndAutoEvents() {
+        MemorySink sink = new MemorySink();
+        LoggingConfig cfg = new LoggingConfig();
+        cfg.setService("svc");
+        cfg.setRelease("1.4.2+sha.abc");
+        cfg.setLevel(Level.INFO);
+        Logger log = Logger.create(cfg, sink);
+
+        log.info("manual with release");
+        log.recordAuto(CoreTypes.EventType.CRASH.raw(), "auto with release",
+                "auto", null, Map.of("mechanism", "uncaught"));
+
+        assertEquals(2, sink.size());
+        for (String line : sink.lines()) {
+            Map<String, Object> o = Json.parseObject(line);
+            assertEquals("1.4.2+sha.abc", o.get("release"));
+        }
+    }
+
+    @Test
+    public void releaseAbsentWhenNotConfigured() {
+        MemorySink sink = new MemorySink();
+        LoggingConfig cfg = new LoggingConfig();
+        cfg.setService("svc");
+        cfg.setLevel(Level.INFO);
+        Logger log = Logger.create(cfg, sink);
+        log.info("no release");
+
+        Map<String, Object> o = Json.parseObject(sink.lines().get(0));
+        assertFalse(o.containsKey("release"));
+    }
+
+    @Test
+    public void releaseTooLongIsDropped() {
+        MemorySink sink = new MemorySink();
+        LoggingConfig cfg = new LoggingConfig();
+        cfg.setService("svc");
+        cfg.setRelease("x".repeat(200));
+        cfg.setLevel(Level.INFO);
+        Logger log = Logger.create(cfg, sink);
+        log.info("long release");
+
+        Map<String, Object> o = Json.parseObject(sink.lines().get(0));
+        assertFalse(o.containsKey("release"));
+    }
+
+    @Test
+    public void crashHandlerEmitsStandardExceptionVocabulary() throws Exception {
+        List<Map<String, Object>> captured = new ArrayList<>();
+        Thread.UncaughtExceptionHandler previous = Thread.getDefaultUncaughtExceptionHandler();
+        CoreTypes.AutoInstrumentation.installCrashHandler(
+                (eventType, message, category, traceId, payload) -> {
+                    assertEquals(CoreTypes.EventType.CRASH.raw(), eventType);
+                    captured.add(new LinkedHashMap<>(payload));
+                });
+        try {
+            Thread t = new Thread(() -> {
+                throw new IllegalStateException("boom-java");
+            });
+            t.start();
+            t.join();
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(previous);
+        }
+
+        assertEquals(1, captured.size());
+        Map<String, Object> payload = captured.get(0);
+        assertEquals("uncaught", payload.get("mechanism"));
+        assertEquals("boom-java", payload.get("exception_message"));
+        assertEquals("java.lang.IllegalStateException", payload.get("exception"));
     }
 
     private void checkLine(String line) {
