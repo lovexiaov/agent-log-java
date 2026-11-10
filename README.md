@@ -86,6 +86,27 @@ Two opt-in helpers emit `agent_auto=true` events:
 | `redactPaths` | `[]` (append only) |
 | `exportDirectory` | `<java.io.tmpdir>/agent-log` |
 
+## AI interaction events (Schema v1.4)
+
+All six ends share one AI event contract (`INTERFACE.md` §4.4): six standard
+`event_type` values, a snake_case payload vocabulary, and `agent_auto=false`
+(explicit business-side instrumentation — the framework never hooks an LLM SDK).
+
+```java
+AgentLog.aiRequest("gpt-4o", "summarize this",
+        Map.of("request_id", "req_001", "provider", "openai"));
+AgentLog.aiResponse("gpt-4o", 530,
+        Map.of("request_id", "req_001", "prompt_tokens", 320));
+AgentLog.aiError("RateLimitError", "429 too many requests", Map.of("request_id", "req_001"));
+```
+
+`AiEvents` provides the same static methods directly. `extra` carries
+standard-vocabulary or business keys. Levels: request / response / tool = info,
+guardrail = warn, error = error. `request_id` links request → response → tool → error
+within one turn and is never generated/validated by the framework. `ai_error` reuses
+the v1.3 exception vocabulary. OTLP export emits a LogRecord only — **no span**;
+attach `span_id` explicitly if a downstream system needs to build one.
+
 ## Build & Test
 
 ```bash

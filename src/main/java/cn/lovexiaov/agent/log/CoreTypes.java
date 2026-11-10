@@ -19,6 +19,12 @@ public final class CoreTypes {
         CRASH("crash"),
         HANG("hang"),
         DB_QUERY("db_query"),
+        AI_REQUEST_INITIATED("ai_request_initiated"),
+        AI_RESPONSE_RECEIVED("ai_response_received"),
+        AI_TOOL_CALL_INITIATED("ai_tool_call_initiated"),
+        AI_TOOL_CALL_COMPLETED("ai_tool_call_completed"),
+        AI_GUARDRAIL_TRIGGERED("ai_guardrail_triggered"),
+        AI_ERROR("ai_error"),
         LOG("log");
 
         private final String raw;

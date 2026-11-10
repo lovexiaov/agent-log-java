@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
 public final class OtlpMapper {
 
     /** Keep in sync with the project version (asserted by the test suite). */
-    public static final String SDK_VERSION = "1.3.0";
+    public static final String SDK_VERSION = "1.4.0";
 
     /** OTel {@code SpanKind.SPAN_KIND_CLIENT}. */
     public static final int SPAN_KIND_CLIENT = 3;
@@ -439,7 +439,8 @@ public final class OtlpMapper {
         Map<String, Object> payload = asMap(event.get("payload"));
         attrs.addAll(keyValues(payload, "payload."));
         String type = str(eventType);
-        if ("crash".equals(type) || "hang".equals(type)) {
+        // Schema v1.4: ai_error reuses the v1.3 exception vocabulary.
+        if ("crash".equals(type) || "hang".equals(type) || "ai_error".equals(type)) {
             attrs.addAll(exceptionAttributes(payload));
         }
         return attrs;

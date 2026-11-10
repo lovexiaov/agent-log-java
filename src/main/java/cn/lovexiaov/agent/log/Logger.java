@@ -147,6 +147,16 @@ public final class Logger {
         emit(buildEvent(Level.INFO, eventType, true, message, category, traceId, payload));
     }
 
+    /**
+     * Emit a fully-specified event with an explicit level and agent_auto flag.
+     * Used by the AI convenience helpers (see {@link AiEvents}); manual AI events
+     * pass {@code agentAuto=false}.
+     */
+    public void record(Level level, String eventType, boolean agentAuto, String message,
+                       String category, String traceId, Map<String, Object> payload) {
+        emit(buildEvent(level, eventType, agentAuto, message, category, traceId, payload));
+    }
+
     private LogEvent buildEvent(Level level, String eventType, boolean agentAuto,
                                 String message, String category, String traceId,
                                 Map<String, Object> payload) {

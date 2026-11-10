@@ -541,7 +541,7 @@ public class OtlpMapperTests {
 
     @Test
     public void sdkVersionMatchesProjectVersion() {
-        assertEquals("1.3.0", OtlpMapper.SDK_VERSION);
+        assertEquals("1.4.0", OtlpMapper.SDK_VERSION);
         assertEquals(3, OtlpMapper.SPAN_KIND_CLIENT);
         assertEquals(2, OtlpMapper.STATUS_CODE_ERROR);
     }

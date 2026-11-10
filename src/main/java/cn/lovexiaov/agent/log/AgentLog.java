@@ -116,6 +116,32 @@ public final class AgentLog {
         logger().recordAuto(eventType, message, category, traceId, payload);
     }
 
+    // ------------------------------------------------------ AI interaction events (Schema v1.4)
+
+    public static void aiRequest(String model, String promptText, Map<String, Object> extra) {
+        AiEvents.aiRequest(model, promptText, extra);
+    }
+
+    public static void aiResponse(String model, int totalTokens, Map<String, Object> extra) {
+        AiEvents.aiResponse(model, totalTokens, extra);
+    }
+
+    public static void aiToolCall(String toolName, Object toolArguments, Map<String, Object> extra) {
+        AiEvents.aiToolCall(toolName, toolArguments, extra);
+    }
+
+    public static void aiToolResult(String toolName, boolean ok, Map<String, Object> extra) {
+        AiEvents.aiToolResult(toolName, ok, extra);
+    }
+
+    public static void aiGuardrail(String guardrailType, String reason, Map<String, Object> extra) {
+        AiEvents.aiGuardrail(guardrailType, reason, extra);
+    }
+
+    public static void aiError(String errorType, String message, Map<String, Object> extra) {
+        AiEvents.aiError(errorType, message, extra);
+    }
+
     public static String exportPath() {
         return logger().exportPath();
     }
