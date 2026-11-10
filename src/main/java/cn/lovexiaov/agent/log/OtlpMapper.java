@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
 public final class OtlpMapper {
 
     /** Keep in sync with the project version (asserted by the test suite). */
-    public static final String SDK_VERSION = "1.0.0";
+    public static final String SDK_VERSION = "1.3.0";
 
     /** OTel {@code SpanKind.SPAN_KIND_CLIENT}. */
     public static final int SPAN_KIND_CLIENT = 3;

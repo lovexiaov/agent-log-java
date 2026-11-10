@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.3.0] - 2026-11-10
 
 Schema v1.3（向后兼容增量）。
 
